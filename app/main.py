@@ -1,22 +1,11 @@
-from fastapi import FastAPI, File, UploadFile
-from fastapi.responses import JSONResponse
-from app.utils import extract_text_from_pdf
-import uvicorn
+from fastapi import FastAPI, UploadFile, File, HTTPException
+from app.utils import parse_pdf_and_categorize
+from app.models import FinancialSummary
 
-app = FastAPI()
-
-@app.get("/")
-def root():
-    return {"message": "FinBot PDF Analyzer is running!"}
-
-@app.post("/upload-pdf/")
-async def upload_pdf(file: UploadFile = File(...)):
-    try:
-        contents = await file.read()
-        text = extract_text_from_pdf(contents)
-        return JSONResponse(content={"extracted_text": text})
-    except Exception as e:
-        return JSONResponse(status_code=500, content={"error": str(e)})
-
-# Run the app using uvicorn
-# Run from terminal: uvicorn app.main:app --reload
+@app.post("/analyze", response_model=FinancialSummary)
+async def analyze_pdf(file: UploadFile = File(...)):
+    if not file.filename.endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files are supported.")
+    
+    result = await parse_pdf_and_categorize(file)
+    return result
