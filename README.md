@@ -1,6 +1,3 @@
-# finbot-backend
-Backend for WhatsApp Financial Planner
-
 # FinBot – Financial Planner API
 
 This backend receives credit card statements (PDF), extracts expenses, categorizes them using ML-like logic, and returns financial insights.
